@@ -5,7 +5,7 @@
 
 import time, math
 import numpy as np
-import pandas as pd
+import requests as io
 import yfinance as yf
 from scipy.stats import trim_mean
 from pandas_datareader import data as pdr
@@ -40,15 +40,28 @@ def badge(text, kind):
     return f'<span style="background:{colors.get(kind,"#6b7280")};color:#fff;padding:2px 6px;border-radius:999px;font-size:12px;font-weight:600">{text}</span>'
 
 def get_fred_series(code, start):
-    for _ in range(3):
+    """
+    Fetch a FRED series as a pandas.Series using the public CSV endpoint.
+    Works without pandas_datareader and without an API key.
+    """
+    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={code}"
+    for _ in range  (3):
         try:
-            s = pdr.DataReader(code, "fred", start=start).squeeze()
-            if isinstance(s, pd.DataFrame):
-                s = s.iloc[:,0]
-            return s.dropna()
+            r = requests.get(url, timeout=30)
+            r.raise_for_status()
+            df = pd.read_csv(io.StringIO(r.text))
+            # FRED CSV columns: DATE, <CODE>
+            df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
+            s = pd.to_numeric(df[code], errors="coerce")
+            s.index = df["DATE"]
+            s = s.sort_index().dropna()
+            if start:
+                s = s[s.index >= pd.to_datetime(start)]
+            return s
         except Exception:
-            time.sleep(1.2)
+            time.sleep(1.0)
     return pd.Series(dtype=float)
+
 
 def last_non_nan(series):
     if series is None: return np.nan
