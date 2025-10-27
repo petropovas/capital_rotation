@@ -437,12 +437,36 @@ rotation_map = pd.DataFrame({
 map_html = f"<div class='rot-wrap'><div class='scroll-x'>{rotation_map.to_html(index=False, classes='map-table', escape=False)}</div></div>"
 display(HTML(map_html))
 
-
 FULL_HTML = "".join(html) + foot + snapshot_html + map_html
 with open("report.html", "w", encoding="utf-8") as f:
     f.write(FULL_HTML)
-print("✅ wrote report.html")
 
-FULL_HTML = "".join(html) + foot + snapshot_html + map_html
-with open("report.html", "w", encoding="utf-8") as f:
-    f.write(FULL_HTML)
+# dashboard.py  (tail section)
+
+def build_html():
+    # your existing code that builds FULL_HTML goes here
+    # must end with:
+    FULL_HTML = "".join(html) + foot + snapshot_html + map_html
+    return FULL_HTML
+
+def main():
+    try:
+        html = build_html()
+        if not html or len(html) < 500:  # sanity guard
+            raise RuntimeError("Generated HTML looks too small.")
+    except Exception as e:
+        # Fallback HTML if data fetch / code fails, so the CI still publishes something
+        html = f"""<!doctype html><meta charset="utf-8">
+        <title>Weekly Macro Rotation — Build Error</title>
+        <body style="font-family:Inter,Arial,sans-serif">
+        <h1>Weekly Macro Rotation</h1>
+        <p>Build failed in CI: {e}</p>
+        <p>Check the GitHub Actions logs for the traceback.</p>
+        </body>"""
+    with open("report.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print("✅ wrote report.html, size:", len(html))
+
+if __name__ == "__main__":
+    main()
+
