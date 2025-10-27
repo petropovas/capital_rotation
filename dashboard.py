@@ -20,6 +20,21 @@ VOL_WIN = 8
 MOM_COMPARE = "12M"          # or "6M"
 RISK_ON_BASELINE = 35.0      # % used in narrative baseline
 
+def last_non_nan(series):
+    """Return last non-NaN float from a Series, or NaN if none."""
+    if series is None:
+        return np.nan
+    s = pd.to_numeric(series, errors="coerce").dropNa() if hasattr(series, "dropna") else pd.Series(dtype=float)
+    return float(s.iloc[-1]) if len(s) else np.nan
+
+def last_z_safe(series):
+    """Last non-NaN of 5y z-score, or NaN if not enough history."""
+    if series is None or len(series.dropna()) == 0:
+        return np.nan
+    z = (series - series.rolling(520, min_periods=260).mean()) / series.rolling(520, min_periods=260).std()
+    z = z.dropna()
+    return float(z.iloc[-1]) if len(z) else np.nan
+
 def hasnum(v):
     return (v is not None) and (not (isinstance(v,(float,np.floating)) and np.isnan(v)))
 
@@ -192,15 +207,16 @@ def build_html():
         sd = s.rolling(win, min_periods=minp).std()
         return (s - m) / sd
 
-    z_last = {
-        "real_policy_z": zscore(fred["real_policy"]).tail(1).iloc[0],
-        "NFCI_z":        zscore(fred["NFCI"]).tail(1).iloc[0],
-        "slope_2s10s_z": zscore(fred["slope_2s10s"]).tail(1).iloc[0],
-        "DFII10_z":      zscore(fred["DFII10"]).tail(1).iloc[0],
-        "T10YIE_z":      zscore(fred["T10YIE"]).tail(1).iloc[0],
-        "M2SL_yoy_z":    zscore(fred["M2SL_yoy"]).tail(1).iloc[0],
-        "TOTCI_yoy_z":   zscore(fred["TOTCI_yoy"]).tail(1).iloc[0],
-    }
+z_last = {
+    "real_policy_z":  last_z_safe(fred["real_policy"])    if "real_policy"   in fred else np.nan,
+    "NFCI_z":         last_z_safe(fred["NFCI"])           if "NFCI"          in fred else np.nan,
+    "slope_2s10s_z":  last_z_safe(fred["slope_2s10s"])    if "slope_2s10s"   in fred else np.nan,
+    "DFII10_z":       last_z_safe(fred["DFII10"])         if "DFII10"        in fred else np.nan,
+    "T10YIE_z":       last_z_safe(fred["T10YIE"])         if "T10YIE"        in fred else np.nan,
+    "M2SL_yoy_z":     last_z_safe(fred["M2SL_y"] if "M2SL_y" in fred else fred.get("M2SL_yoy")),
+    "TOTCI_yoy_z":    last_z_safe(fred["TOTCI_y"] if "TOTCI_y" in fred else fred.get("TOTCI_yoy")),
+}
+
 
     now = pd.Timestamp.utcnow().tz_localize(None)
     STALE_DAYS = {"FEDFUNDS":14,"NFCI":14,"DFII10":7,"T10YIE":7,"T10Y2Y":7,"PCEPILFE":60,"M2SL":60,"TOTCI":28}
@@ -325,8 +341,9 @@ def build_html():
     date_str = bucketed.index[-1].date().isoformat()
     hdr_html = f"<div class='hdr'><h2>Cross-Asset Capital Rotation — Weekly ({date_str})</h2>{hdr_badge}</div>"
 
-    m2_yoy_val    = last_non_nan(fred.get("M2SL_yoy"))
-    totci_yoy_val = last_non_nan(fred.get("TOTCI_yoy"))
+m2_yoy_val    = last_non_nan(fred.get("M2SL_yoy"))
+totci_yoy_val = last_non_nan(fred.get("TOTCI_yoy"))  
+
 
     drivers_html = f"""
     <div class="drivers">
