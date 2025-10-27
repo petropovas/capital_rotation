@@ -1,9 +1,9 @@
-name: Pages Smoke Test
+name: Build & Deploy Weekly Macro Report
 
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "0 6 * * 6"
+    - cron: "0 6 * * 6"   # Saturdays 06:00 UTC (~08:00 CET)
 
 permissions:
   contents: read
@@ -18,16 +18,34 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Make tiny site
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy scipy pandas_datareader matplotlib plotly requests
+
+      - name: Run generator
+        run: |
+          python --version
+          ls -la
+          python dashboard.py
+
+      - name: Verify report presence
+        run: |
+          echo "Repo files:" && ls -la
+          test -f report.html && echo "report.html exists" || (echo "report.html missing"; exit 1)
+          echo "Report size:" && wc -c report.html
+
+      - name: Prepare Pages artifact
         run: |
           mkdir -p dist
-          cat > dist/index.html <<'HTML'
-          <!doctype html>
-          <meta charset="utf-8">
-          <title>capital_rotation — OK</title>
-          <h1>GitHub Pages is working ✅</h1>
-          <p>If you can see this, Pages is configured correctly.</p>
-          HTML
+          cp report.html dist/index.html
+          echo "Built on $(date -u)" > dist/build.txt
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
