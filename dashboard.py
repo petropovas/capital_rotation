@@ -8,7 +8,6 @@ import numpy as np
 import requests as io
 import yfinance as yf
 from scipy.stats import trim_mean
-from pandas_datareader import data as pdr
 
 # -----------------------------
 # 0) Params & helpers
