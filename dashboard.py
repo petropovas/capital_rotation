@@ -5,7 +5,7 @@
 
 import time, math
 import numpy as np
-import requests as io
+import requests, io
 import yfinance as yf
 from scipy.stats import trim_mean
 
