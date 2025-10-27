@@ -4,10 +4,11 @@
 # ===========================================
 
 import time, math
-import numpy as np
 import requests, io
 import yfinance as yf
+import pandas as pd, numpy as np
 from scipy.stats import trim_mean
+
 
 # -----------------------------
 # 0) Params & helpers
