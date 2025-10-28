@@ -30,18 +30,13 @@ jobs:
           pip install yfinance pandas numpy scipy pandas_datareader matplotlib plotly requests
 
       - name: Normalize indentation (tabs → 4 spaces) and show the suspect block
-         run: |
-    # 1) replace every tab in the file with 4 spaces
-           expand -t 4 dashboard.py > dashboard_clean.py && mv dashboard_clean.py dashboard.py
-
-    # 2) hard-proof: fail if any tab survived
-    if grep -nP "\t" dashboard.py; then
-      echo "Tabs remain in dashboard.py — aborting"; exit 1
-    fi
-
-    # 3) print the exact lines around 215–235 so we can see the indent in logs
-    echo "---- dashboard.py (215..235) ----"
-    nl -ba dashboard.py | sed -n '215,235p'
+        run: |
+          expand -t 4 dashboard.py > dashboard_clean.py && mv dashboard_clean.py dashboard.py
+          if grep -nP "\t" dashboard.py; then
+            echo "Tabs remain in dashboard.py — aborting"; exit 1
+          fi
+          echo "---- dashboard.py (215..235) ----"
+          nl -ba dashboard.py | sed -n '215,235p'
 
 
       - name: Run generator
