@@ -347,7 +347,6 @@ def build_html():
 m2_yoy_val    = last_non_nan(fred.get("M2SL_yoy"))
 totci_yoy_val = last_non_nan(fred.get("TOTCI_yoy"))  
 
-
     drivers_html = f"""
     <div class="drivers">
       <div class="card">
