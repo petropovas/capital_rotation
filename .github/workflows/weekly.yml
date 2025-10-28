@@ -37,6 +37,15 @@ jobs:
           fi
           echo "---- dashboard.py (215..235) ----"
           nl -ba dashboard.py | sed -n '215,235p'
+       
+       - name: Normalize indentation (tabs → 4 spaces) and show suspect block
+         run: |
+          expand -t 4 dashboard.py > dashboard_clean.py && mv dashboard_clean.py dashboard.py
+          if grep -nP "\t" dashboard.py; then
+          echo "Tabs remain in dashboard.py — aborting"; exit 1
+          fi
+          echo "---- dashboard.py (340..365) ----"
+          nl -ba dashboard.py | sed -n '340,365p'
 
 
       - name: Run generator
