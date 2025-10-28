@@ -217,7 +217,7 @@ def build_html():
         "M2SL_yoy_z":    zscore(fred["M2SL_yoy"]).tail(1).iloc[0],
         "TOTCI_yoy_z":   zscore(fred["TOTCI_yoy"]).tail(1).iloc[0],
     }
-    
+
     now = pd.Timestamp.utcnow().tz_localize(None)
     STALE_DAYS = {
         "FEDFUNDS": 14, "NFCI": 14, "DFII10": 7, "T10YIE": 7,
@@ -226,9 +226,11 @@ def build_html():
 
     def last_valid(series: pd.Series):
         s = series.dropna()
-        if s.empty: return np.nan, None, True
+        if s.empty:
+            return np.nan, None, True
         d = pd.to_datetime(s.index[-1])
         return float(s.iloc[-1]), d, False
+
 
     LV = {}
     for code in fred_series:
