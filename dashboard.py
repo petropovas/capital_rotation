@@ -376,14 +376,14 @@ totci_yoy_val = last_non_nan(fred.get("TOTCI_yoy"))
                      "12M":"12M","2Y":"2Y","3Y":"3Y","4Y":"4Y avg (structural)"}
     cols = ["Bucket","Momentum (Now vs "+MOM_COMPARE+")"] + [display_names[k] for k in cols_keys]
 
-    html = [styles, '<div class="rot-wrap">', hdr_html, drivers_html,
+   html = [styles, '<div class="rot-wrap">', hdr_html, drivers_html,
             '<table class="rot-table"><colgroup>',
             '<col class="col-bucket">','<col class="col-momentum">', *["<col>"]*len(cols_keys),
             '</colgroup><thead><tr>']
-    for c in cols: html.append(f"<th>{c}</th>")
-    html.append('</tr></thead><tbody>')
-
-    for _, row in table_display.iterrows():
+   for c in cols: html.append(f"<th>{c}</th>")
+   html.append('</tr></thead><tbody>')
+   
+   for _, row in table_display.iterrows():
         b = row["Bucket"]
         html.append('<tr>')
         html.append(f'<td class="col-bucket">{b}</td>')
