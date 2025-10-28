@@ -118,6 +118,7 @@ cash_label = BUCKET_CASH
 # -----------------------------
 # 2) Core builder
 # -----------------------------
+
 def build_html():
     # 2a) Prices (Yahoo, weekly)
     raw = yf.download(
@@ -207,7 +208,7 @@ def build_html():
         sd = s.rolling(win, min_periods=minp).std()
         return (s - m) / sd
 
-       z_last = {
+    z_last = {
         "real_policy_z": zscore(fred["real_policy"]).tail(1).iloc[0],
         "NFCI_z":        zscore(fred["NFCI"]).tail(1).iloc[0],
         "slope_2s10s_z": zscore(fred["slope_2s10s"]).tail(1).iloc[0],
