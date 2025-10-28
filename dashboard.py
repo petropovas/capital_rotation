@@ -349,27 +349,33 @@ def build_html():
 m2_yoy_val    = last_non_nan(fred.get("M2SL_yoy"))
 totci_yoy_val = last_non_nan(fred.get("TOTCI_yoy"))  
 
-    drivers_html = f"""
-    <div class="drivers">
-      <div class="card">
-        <h4>Policy & Conditions</h4>
-        <div class="kv"><span>Fed funds (%, level)</span><span>{fmt(LV['FEDFUNDS']['v'])}{asof_tag(LV['FEDFUNDS']['date'], LV['FEDFUNDS']['stale'])}</span></div>
-        <div class="kv"><span>Real policy (FF − core PCE)</span><span>{fmt(rp,'%')} {badge('Restrictive','tight') if rp_v=='tight' else (badge('Accommodative','loose') if rp_v=='loose' else badge('Neutral','neutral'))}{fmt_chg3m(rp_3m,'pp')}</span></div>
-        <div class="kv"><span>NFCI</span><span>{fmt(nf)} {badge('Tight','tight') if nf_v=='tight' else (badge('Loose','loose') if nf_v=='loose' else badge('Neutral','neutral'))}{fmt_chg3m(nf_3m,'')}{asof_tag(LV['NFCI']['date'], LV['NFCI']['stale'])}</span></div>
-      </div>
-      <div class="card">
-        <h4>Real Rates & Inflation</h4>
-        <div class="kv"><span>Real 10Y (TIPS)</span><span>{fmt(LV['DFII10']['v'],'%')}{fmt_z(z_last.get('DFII10_z'))}{asof_tag(LV['DFII10']['date'], LV['DFII10']['stale'])}</span></div>
-        <div class="kv"><span>10Y breakeven</span><span>{fmt(LV['T10YIE']['v'],'%')}{fmt_z(z_last.get('T10YIE_z'))}{asof_tag(LV['T10YIE']['date'], LV['T10YIE']['stale'])}</span></div>
-        <div class="kv"><span>2s10s slope</span><span>{fmt(sl,'%')} {badge('Inverted','inv') if sl_v=='inv' else badge('Steepening','steep')}{fmt_chg3m(sl_3m,'pp')}{asof_tag(LV['T10Y2Y']['date'], LV['T10Y2Y']['stale'])}</span></div>
-      </div>
-      <div class="card">
-        <h4>Money & Credit</h4>
-        <div class="kv"><span>M2 YoY</span><span>{fmt(m2_yoy_val,'%')}{fmt_z(z_last.get('M2SL_yoy_z'))}{asof_tag(LV['M2SL']['date'], LV['M2SL']['stale'])}</span></div>
-        <div class="kv"><span>C&amp;I loans YoY</span><span>{fmt(totci_yoy_val,'%')}{fmt_z(z_last.get('TOTCI_yoy_z'))}{asof_tag(LV['TOTCI']['date'], LV['TOTCI']['stale'])}</span></div>
-      </div>
-    </div>
-    """
+
+    drivers_html = (
+        f"""
+<div class="drivers">
+  <div class="card">
+    <h4>Policy & Conditions</h4>
+    <div class="kv"><span>Fed funds (%, level)</span><span>{fmt(LV['FEDFUNDS']['v'])}{asof_tag(LV['FEDFUNDS']['date'], LV['FEDFUNDS']['stale'])}</span></div>
+    <div class="kv"><span>Real policy (FF − core PCE)</span><span>{fmt(rp,'%')} {badge('Restrictive','tight') if rp_v=='tight' else (badge('Accommodative','loose') if rp_v=='loose' else badge('Neutral','neutral'))}{fmt_chg3m(rp_3m,'pp')}</span></div>
+    <div class="kv"><span>NFCI</span><span>{fmt(nf)} {badge('Tight','tight') if nf_v=='tight' else (badge('Loose','loose') if nf_v=='loose' else badge('Neutral','neutral'))}{fmt_chg3m(nf_3m,'')}{asof_tag(LV['NFCI']['date'], LV['NFCI']['stale'])}</span></div>
+  </div>
+
+  <div class="card">
+    <h4>Real Rates & Inflation</h4>
+    <div class="kv"><span>Real 10Y (TIPS)</span><span>{fmt(LV['DFII10']['v'],'%')}{fmt_z(z_last.get('DFII10_z'))}{asof_tag(LV['DFII10']['date'], LV['DFII10']['stale'])}</span></div>
+    <div class="kv"><span>10Y breakeven</span><span>{fmt(LV['T10YIE']['v'],'%')}{fmt_z(z_last.get('T10YIE_z'))}{asof_tag(LV['T10YIE']['date'], LV['T10YIE']['stale'])}</span></div>
+    <div class="kv"><span>2s10s slope</span><span>{fmt(sl,'%')} {badge('Inverted','inv') if sl_v=='inv' else badge('Steepening','steep')}{fmt_chg3m(sl_3m,'pp')}{asof_tag(LV['T10Y2Y']['date'], LV['T10Y2Y']['stale'])}</span></div>
+  </div>
+
+  <div class="card">
+    <h4>Money & Credit</h4>
+    <div class="kv"><span>M2 YoY</span><span>{fmt(m2_yoy_val,'%')}{fmt_z(z_last.get('M2SL_yoy_z'))}{asof_tag(LV['M2SL']['date'], LV['M2SL']['stale'])}</span></div>
+    <div class="kv"><span>C&amp;I loans YoY</span><span>{fmt(totci_yoy_val,'%')}{fmt_z(z_last.get('TOTCI_yoy_z'))}{asof_tag(LV['TOTCI']['date'], LV['TOTCI']['stale'])}</span></div>
+  </div>
+</div>
+        """
+    )
+
 
     # main table
     cols_keys = ["Current","4W","12W","6M","12M","2Y","3Y","4Y"]
