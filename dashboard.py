@@ -24,7 +24,7 @@ def fetch_weekly_closes(tickers, start):
         tickers=tickers,
         start=start,
         interval=INTERVAL_WEEKLY,
-        auto_download=True,
+
         auto_adjust=True,
         group_by="column",
         progress=False,
@@ -51,7 +51,7 @@ def fetch_weekly_closes(tickers, start):
         tickers=tickers,
         start=start,
         interval=INTERVAL_DAILY,
-        auto_download=True,
+
         auto_adjust=True,
         group_by="column",
         progress=False,
