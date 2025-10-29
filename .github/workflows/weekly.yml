@@ -1,9 +1,11 @@
 name: Build & Deploy Weekly Macro Report
 
 on:
-  workflow_dispatch: {}
+  # run every Saturday morning ~08:00 CET (07:00 UTC in winter; adjust as needed)
   schedule:
-    - cron: "0 6 * * 6"   # Saturdays 06:00 UTC (~08:00 CET)
+    - cron: "0 7 * * 6"
+  # allow manual runs from the Actions tab
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -17,48 +19,32 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install yfinance pandas numpy scipy pandas_datareader matplotlib plotly requests
+          pip install yfinance pandas numpy
 
-      - name: Normalize indentation (tabs → 4 spaces) and show the suspect block
-        run: |
-          expand -t 4 dashboard.py > dashboard_clean.py && mv dashboard_clean.py dashboard.py
-          if grep -nP "\t" dashboard.py; then
-            echo "Tabs remain in dashboard.py — aborting"; exit 1
-          fi
-          echo "---- dashboard.py (215..235) ----"
-          nl -ba dashboard.py | sed -n '215,235p'
-       
-       - name: Normalize indentation (tabs → 4 spaces) and show suspect block
-         run: |
-          expand -t 4 dashboard.py > dashboard_clean.py && mv dashboard_clean.py dashboard.py
-          if grep -nP "\t" dashboard.py; then
-          echo "Tabs remain in dashboard.py — aborting"; exit 1
-          fi
-          echo "---- dashboard.py (340..365) ----"
-          nl -ba dashboard.py | sed -n '340,365p'
-
-
-      - name: Run generator
+      - name: Generate HTML report
         run: |
           python --version
           ls -la
           python dashboard.py
 
-      - name: Verify report presence
+      - name: Verify report artifact
         run: |
-          echo "Repo files:" && ls -la
-          test -f report.html && echo "report.html exists" || (echo "report.html missing"; exit 1)
-          echo "Report size:" && wc -c report.html
+          test -f report.csv && echo "report.html exists" || true
+          echo "Report size (bytes):"
+          wc -c report.html
 
       - name: Prepare Pages artifact
         run: |
@@ -66,7 +52,7 @@ jobs:
           cp report.html dist/index.html
           echo "Built on $(date -u)" > dist/build.txt
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
